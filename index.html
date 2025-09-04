@@ -5,26 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academy: Онбординг внештатных авторов</title>
     <style>
+        /* ОБЪЯВЛЕНИЕ ПОЛЬЗОВАТЕЛЬСКИХ ШРИФТОВ */
+        @font-face {
+            font-family: 'CustomHeadingFont';
+            src: url('fonts/YourHeadingFont.woff2') format('woff2'),
+                 url('fonts/YourHeadingFont.woff') format('woff');
+            font-weight: 400 700;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        @font-face {
+            font-family: 'CustomBodyFont';
+            src: url('fonts/YourBodyFont.woff2') format('woff2'),
+                 url('fonts/YourBodyFont.woff') format('woff');
+            font-weight: 400 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
         :root {
-            --primary-color: #055977;
-            --secondary-color: #7ADC57;
-            --accent-color: #FFD84E;
+            /* ЦВЕТОВАЯ ПАЛИТРА - можно легко менять */
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
             --light-color: #ecf0f1;
             --dark-color: #34495e;
             --success-color: #27ae60;
+            --gradient-start: #2c3e50;
+            --gradient-end: #3498db;
+            
+            /* ШРИФТЫ - используем ваши кастомные шрифты */
+            --heading-font: 'CustomHeadingFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --body-font: 'CustomBodyFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* ДОПОЛНИТЕЛЬНЫЕ НАСТРОЙКИ */
+            --border-radius: 8px;
+            --box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             background-color: #f9f9f9;
             color: #333;
             line-height: 1.6;
+            font-family: var(--body-font);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
         }
         
         .container {
@@ -34,7 +69,7 @@
         }
         
         header {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
             color: white;
             padding: 20px 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -49,6 +84,7 @@
         .logo {
             font-size: 24px;
             font-weight: bold;
+            font-family: var(--heading-font);
         }
         
         .welcome-section {
@@ -61,25 +97,29 @@
             font-size: 2.5rem;
             margin-bottom: 20px;
             color: var(--primary-color);
+            font-family: var(--heading-font);
         }
         
         .welcome-section p {
             font-size: 1.2rem;
             max-width: 800px;
             margin: 0 auto;
+            font-family: var(--body-font);
         }
         
         .module {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             padding: 30px;
             margin: 40px 0;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
+            border-left: 4px solid var(--secondary-color);
         }
         
         .module:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
         
         .module-header {
@@ -92,6 +132,7 @@
         .module-title {
             font-size: 1.8rem;
             color: var(--primary-color);
+            font-family: var(--heading-font);
         }
         
         .module-status {
@@ -99,6 +140,7 @@
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: bold;
+            font-family: var(--body-font);
         }
         
         .status-not-started {
@@ -122,7 +164,7 @@
             height: 0;
             overflow: hidden;
             margin-bottom: 20px;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
         }
         
         .video-container video {
@@ -131,33 +173,39 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
         }
         
         .btn {
             display: inline-block;
             padding: 12px 24px;
-            background-color: var(--secondary-color);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
             color: white;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: var(--transition);
             border: none;
+            font-family: var(--body-font);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .btn:hover {
-            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
         
         .btn-disabled {
-            background-color: #ccc;
+            background: #ccc;
             cursor: not-allowed;
+            box-shadow: none;
         }
         
         .btn-disabled:hover {
-            background-color: #ccc;
+            background: #ccc;
+            transform: none;
+            box-shadow: none;
         }
         
         .resources-section {
@@ -169,6 +217,7 @@
             text-align: center;
             margin-bottom: 40px;
             color: var(--primary-color);
+            font-family: var(--heading-font);
         }
         
         .resources-list {
@@ -185,12 +234,14 @@
             display: block;
             padding: 15px;
             background-color: white;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             text-decoration: none;
             color: var(--dark-color);
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-family: var(--body-font);
+            border-left: 3px solid var(--secondary-color);
         }
         
         .resources-list a:hover {
@@ -204,6 +255,7 @@
             color: white;
             padding: 30px 0;
             text-align: center;
+            font-family: var(--body-font);
         }
         
         .modal {
@@ -222,7 +274,7 @@
         .modal-content {
             background-color: white;
             padding: 30px;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             max-width: 500px;
             width: 100%;
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
@@ -234,6 +286,7 @@
         .modal h2 {
             margin-bottom: 20px;
             color: var(--primary-color);
+            font-family: var(--heading-font);
         }
         
         .form-group {
@@ -244,6 +297,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
+            font-family: var(--body-font);
         }
         
         .form-group input, .form-group select {
@@ -252,6 +306,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1rem;
+            font-family: var(--body-font);
         }
         
         .close-modal {
@@ -271,6 +326,7 @@
         .success-message h2 {
             color: var(--success-color);
             margin-bottom: 20px;
+            font-family: var(--heading-font);
         }
         
         .question {
@@ -282,6 +338,7 @@
         .question-text {
             font-weight: 500;
             margin-bottom: 10px;
+            font-family: var(--body-font);
         }
         
         .options label {
@@ -291,6 +348,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s;
+            font-family: var(--body-font);
         }
         
         .options label:hover {
@@ -309,6 +367,7 @@
             border-radius: 4px;
             font-size: 1rem;
             margin-top: 5px;
+            font-family: var(--body-font);
         }
         
         @media (max-width: 768px) {
@@ -329,6 +388,41 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* Стили для демонстрации загрузки шрифтов */
+        .font-demo {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .font-demo h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-family: var(--heading-font);
+        }
+        
+        .font-sample {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .font-variant {
+            padding: 15px;
+            background: var(--light-color);
+            border-radius: 8px;
+        }
+        
+        .font-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            font-family: var(--body-font);
+        }
     </style>
 </head>
 <body>
@@ -342,6 +436,28 @@
         <div class="container">
             <h1>Добро пожаловать в академию внештатных авторов!</h1>
             <p>Мы рады приветствовать вас в нашей команде! Это обучающая платформа поможет вам освоить ключевые принципы работы и качественно выполнять задачи. Пройдите все модули, чтобы стать частью нашей команды.</p>
+        </div>
+    </section>
+
+    <!-- Демонстрация шрифтов -->
+    <section class="container font-demo">
+        <h3>Демонстрация ваших шрифтов</h3>
+        <p>Ниже показано, как будут выглядеть ваши шрифты на сайте. Если шрифты загрузились правильно, вы увидите их вместо стандартных.</p>
+        
+        <div class="font-sample">
+            <div class="font-variant">
+                <div class="font-name">Заголовочный шрифт (CustomHeadingFont)</div>
+                <div style="font-family: var(--heading-font); font-size: 24px; font-weight: 700;">Заголовок страницы</div>
+                <div style="font-family: var(--heading-font); font-size: 20px; font-weight: 600;">Подзаголовок</div>
+                <div style="font-family: var(--heading-font); font-size: 18px; font-weight: 500;">Мелкий заголовок</div>
+            </div>
+            
+            <div class="font-variant">
+                <div class="font-name">Основной шрифт (CustomBodyFont)</div>
+                <div style="font-family: var(--body-font); font-size: 18px; font-weight: 400;">Обычный текст параграфа</div>
+                <div style="font-family: var(--body-font); font-size: 16px; font-weight: 600;">Полужирный текст</div>
+                <div style="font-family: var(--body-font); font-size: 16px; font-style: italic;">Курсивный текст</div>
+            </div>
         </div>
     </section>
     
@@ -455,9 +571,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
         // Инициализация Supabase
-        // ЗАМЕНИТЕ эти значения на свои из панели управления Supabase
         const SUPABASE_URL = 'https://ebrxicfaclqqgbjdwtoi.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhbmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
@@ -521,7 +636,7 @@
             2: [
                 {
                     id: 1,
-                    question: "Какой этап работы с текстом часто пропускают авторы, что приводит к проблемам на поздних стадиях?",
+                    question: "Какой этап работы с текстами часто пропускают авторы, что приводит к проблемам на поздних стадиях?",
                     type: "radio",
                     options: [
                         "Финальная вычитка орфографии.",
@@ -541,13 +656,13 @@
                         "Объединить несколько вопросов в одном абзаце.",
                         "Написать несколько примеров для иллюстрации мыслей."
                     ],
-                    correctAnswers: [0, 1] // Правильные ответы: первый и второй
+                    correctAnswers: [0, 1]
                 },
                 {
                     id: 3,
                     question: "Какие инструменты вы будете использовать для проверки текста перед сдачей работы?",
                     type: "text",
-                    correctAnswer: "" // Правильный ответ будет проверяться вручную
+                    correctAnswer: ""
                 }
             ],
             3: [
@@ -585,14 +700,13 @@
                     id: 3,
                     question: "Ваш коллега использует нейросеть для создания задания по литературе и просто копирует результат без изменений. Почему это проблема?",
                     type: "text",
-                    correctAnswer: "" // Правильный ответ будет проверяться вручную
+                    correctAnswer: ""
                 }
             ]
         };
         
         // Функции для работы с модальными окнами
         function openTestModal(moduleId) {
-            // Проверяем, можно ли начать этот модуль
             if (moduleId > 1 && !moduleProgress[moduleId - 1].completed) {
                 alert('Сначала завершите предыдущий модуль!');
                 return;
@@ -609,11 +723,9 @@
         async function startTest(moduleId) {
             closeModal('userDataModal');
             
-            // Записываем время начала прохождения тестов, если это первый модуль
             if (moduleId === 1 && !startTime) {
                 startTime = new Date();
                 
-                // Сохраняем пользователя в Supabase
                 const { data, error } = await supabase
                     .from('users')
                     .insert([
@@ -635,11 +747,9 @@
                 userId = data[0].id;
             }
             
-            // Загружаем соответствующий тест
             loadTest(moduleId);
             document.getElementById('testModal').style.display = 'flex';
             
-            // Обновляем статус модуля
             moduleProgress[moduleId].started = true;
             updateModuleStatus(moduleId);
         }
@@ -684,7 +794,6 @@
             
             testContent.innerHTML = testHTML;
             
-            // Добавляем обработчик отправки формы теста
             document.getElementById('testForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitTest(moduleId);
@@ -696,7 +805,6 @@
             const answers = {};
             let score = 0;
             
-            // Собираем ответы и проверяем правильность
             tests[moduleId].forEach(q => {
                 if (q.type === 'radio') {
                     const answer = parseInt(formData.get(`question${q.id}`));
@@ -708,7 +816,6 @@
                     const selectedOptions = formData.getAll(`question${q.id}`).map(val => parseInt(val));
                     answers[q.id] = selectedOptions;
                     
-                    // Проверяем, все ли правильные ответы отмечены и нет ли лишних
                     const isCorrect = arraysEqual(selectedOptions.sort(), q.correctAnswers.sort());
                     if (isCorrect) {
                         score++;
@@ -716,11 +823,9 @@
                 } else if (q.type === 'text') {
                     const answer = formData.get(`question${q.id}`);
                     answers[q.id] = answer;
-                    // Для текстовых ответов оценка будет производиться вручную
                 }
             });
             
-            // Сохраняем результаты в Supabase
             const { error } = await supabase
                 .from('test_results')
                 .insert([
@@ -744,19 +849,14 @@
         }
         
         function completeTest(moduleId, score) {
-            // Обновляем прогресс модуля
             moduleProgress[moduleId].completed = true;
             moduleProgress[moduleId].score = score;
             
-            // Обновляем статус модуля
             updateModuleStatus(moduleId);
             
-            // Закрываем модальное окно теста
             closeModal('testModal');
             
-            // Если это последний модуль, показываем сообщение об успехе
             if (moduleId === 3) {
-                // Обновляем время завершения для пользователя
                 supabase
                     .from('users')
                     .update({ end_time: new Date().toISOString() })
@@ -772,7 +872,6 @@
                 }, 500);
             }
             
-            // Активируем кнопку следующего модуля, если он есть
             if (moduleId < 3) {
                 document.getElementById(`btn-module${moduleId + 1}`).classList.remove('btn-disabled');
             }
@@ -793,7 +892,6 @@
             }
         }
         
-        // Вспомогательная функция для сравнения массивов
         function arraysEqual(a, b) {
             if (a.length !== b.length) return false;
             for (let i = 0; i < a.length; i++) {
@@ -802,11 +900,9 @@
             return true;
         }
         
-        // Обработчик отправки формы пользовательских данных
         document.getElementById('userDataForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Сохраняем данные пользователя
             userData.name = document.getElementById('userName').value;
             userData.email = document.getElementById('userEmail').value;
             userData.phone = document.getElementById('userPhone').value;
@@ -815,7 +911,6 @@
             startTest(parseInt(moduleId));
         });
         
-        // Инициализация видеоплееров
         document.addEventListener('DOMContentLoaded', function() {
             const videos = document.querySelectorAll('video');
             videos.forEach(video => {
