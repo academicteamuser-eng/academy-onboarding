@@ -226,6 +226,9 @@
             max-width: 500px;
             width: 100%;
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .modal h2 {
@@ -243,7 +246,7 @@
             font-weight: 500;
         }
         
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -268,6 +271,44 @@
         .success-message h2 {
             color: var(--success-color);
             margin-bottom: 20px;
+        }
+        
+        .question {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .options label {
+            display: block;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .options label:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .options input[type="radio"], 
+        .options input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        .text-answer {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-top: 5px;
         }
         
         @media (max-width: 768px) {
@@ -410,7 +451,16 @@
         </div>
     </div>
 
+    <!-- Подключаем Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
+        // Инициализация Supabase
+        // ЗАМЕНИТЕ эти значения на свои из панели управления Supabase
+        const SUPABASE_URL = 'https://ebrxicfaclqqgbjdwtoi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         // Переменные для хранения данных пользователя и прогресса
         let userData = {
             name: '',
@@ -418,6 +468,7 @@
             phone: ''
         };
         
+        let userId = null;
         let moduleProgress = {
             1: { started: false, completed: false, score: 0 },
             2: { started: false, completed: false, score: 0 },
@@ -425,6 +476,119 @@
         };
         
         let startTime = null;
+        let currentTestAnswers = {};
+        
+        // Определяем тесты
+        const tests = {
+            1: [
+                {
+                    id: 1,
+                    question: "Какой принцип мы используем, чтобы учёба не создавала эмоциональный груз?",
+                    type: "radio",
+                    options: [
+                        "Акцентируем внимание на высоких ожиданиях и результате",
+                        "Используем шутки для снижения тревожности",
+                        "Подсвечиваем ошибки для повышения мотивации",
+                        "Используем подход «понимание важнее оценки»"
+                    ],
+                    correctAnswer: 3
+                },
+                {
+                    id: 2,
+                    question: "Почему мы избегаем устаревших мемов и сленга в коммуникации?",
+                    type: "radio",
+                    options: [
+                        "Потому что это не соответствует формальным требованиям школ",
+                        "Чтобы не панибратствовать и сохранять актуальность",
+                        "Потому что это запрещено академическим директором",
+                        "Чтобы упростить перевод контента на другие языки"
+                    ],
+                    correctAnswer: 1
+                },
+                {
+                    id: 3,
+                    question: "Какой из перечисленных элементов не входит в стиль общения бренда?",
+                    type: "radio",
+                    options: [
+                        "Уважение",
+                        "Безопасность",
+                        "Забота",
+                        "Юмор"
+                    ],
+                    correctAnswer: 1
+                }
+            ],
+            2: [
+                {
+                    id: 1,
+                    question: "Какой этап работы с текстом часто пропускают авторы, что приводит к проблемам на поздних стадиях?",
+                    type: "radio",
+                    options: [
+                        "Финальная вычитка орфографии.",
+                        "Уточняющие вопросы на этапе брифа.",
+                        "Использование автоматических сервисов проверки.",
+                        "Добавление визуализации в текст."
+                    ],
+                    correctAnswer: 1
+                },
+                {
+                    id: 2,
+                    question: "Что мы рекомендуем сделать при структурировании длинного текста?",
+                    type: "checkbox",
+                    options: [
+                        "Разбить текст на абзацы по 3–5 строк.",
+                        "Использовать подзаголовки и списки.",
+                        "Объединить несколько вопросов в одном абзаце.",
+                        "Написать несколько примеров для иллюстрации мыслей."
+                    ],
+                    correctAnswers: [0, 1] // Правильные ответы: первый и второй
+                },
+                {
+                    id: 3,
+                    question: "Какие инструменты вы будете использовать для проверки текста перед сдачей работы?",
+                    type: "text",
+                    correctAnswer: "" // Правильный ответ будет проверяться вручную
+                }
+            ],
+            3: [
+                {
+                    id: 1,
+                    question: "Какой принцип лежит в основе создания учебных материалов?",
+                    type: "radio",
+                    options: [
+                        "Максимальное упрощение контента для быстрого усвоения",
+                        "Получение готовых знаний с помощью учебников и лекций учителя",
+                        "Обучение через действие и решение практических задач",
+                        "Акцент на развлекательные элементы для вовлечения",
+                        "Основной упор на запоминание фактов и воспроизведение изученного материала",
+                        "Использование сложных терминов для академичности",
+                        "Создание материалов исключительно для автоматизированной проверки",
+                        "Работа в группах и обсуждение учениками изучаемых тем между собой"
+                    ],
+                    correctAnswer: 2
+                },
+                {
+                    id: 2,
+                    question: "Вы создаёте задание по физике про давление и хотите добавить иллюстрацию. Какой принцип будет определяющим при её выборе?",
+                    type: "radio",
+                    options: [
+                        "Иллюстрация должна точно соответствовать научным данным и быть методически выверенной",
+                        "Иллюстрация должна упрощать восприятие материала и быть полезной для понимания темы",
+                        "Картинка должна соответствовать возрастным особенностям и интересам учеников",
+                        "Изображение должно наглядно демонстрировать все формулы и расчёты по теме",
+                        "Иллюстрация должна содержать подробные подписи и пояснения к каждому элементу",
+                        "Иллюстрация должна показывать практическое применение физических законов в жизни"
+                    ],
+                    correctAnswer: 1
+                },
+                {
+                    id: 3,
+                    question: "Ваш коллега использует нейросеть для создания задания по литературе и просто копирует результат без изменений. Почему это проблема?",
+                    type: "text",
+                    correctAnswer: "" // Правильный ответ будет проверяться вручную
+                }
+            ]
+        };
         
         // Функции для работы с модальными окнами
         function openTestModal(moduleId) {
@@ -442,12 +606,33 @@
             document.getElementById(modalId).style.display = 'none';
         }
         
-        function startTest(moduleId) {
+        async function startTest(moduleId) {
             closeModal('userDataModal');
             
             // Записываем время начала прохождения тестов, если это первый модуль
             if (moduleId === 1 && !startTime) {
                 startTime = new Date();
+                
+                // Сохраняем пользователя в Supabase
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([
+                        { 
+                            name: userData.name, 
+                            email: userData.email, 
+                            phone: userData.phone,
+                            start_time: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) {
+                    console.error('Ошибка при сохранении пользователя:', error);
+                    alert('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
+                    return;
+                }
+                
+                userId = data[0].id;
             }
             
             // Загружаем соответствующий тест
@@ -461,30 +646,101 @@
         
         function loadTest(moduleId) {
             const testContent = document.getElementById('testContent');
+            const test = tests[moduleId];
             
-            // В реальном проекте здесь будет загрузка соответствующего теста
-            // Для демонстрации используем заглушки
+            let testHTML = `<h2>Тест к модулю ${moduleId}</h2>
+                           <form id="testForm">`;
             
-            let testHTML = `<h2>Тест к модулю ${moduleId}</h2>`;
+            test.forEach((q, index) => {
+                testHTML += `<div class="question">
+                    <div class="question-text">${index + 1}. ${q.question}</div>
+                    <div class="options">`;
+                
+                if (q.type === 'radio') {
+                    q.options.forEach((option, optIndex) => {
+                        testHTML += `
+                            <label>
+                                <input type="radio" name="question${q.id}" value="${optIndex}" required>
+                                ${option}
+                            </label>`;
+                    });
+                } else if (q.type === 'checkbox') {
+                    q.options.forEach((option, optIndex) => {
+                        testHTML += `
+                            <label>
+                                <input type="checkbox" name="question${q.id}" value="${optIndex}">
+                                ${option}
+                            </label>`;
+                    });
+                } else if (q.type === 'text') {
+                    testHTML += `
+                        <textarea class="text-answer" name="question${q.id}" placeholder="Введите ваш ответ" required></textarea>`;
+                }
+                
+                testHTML += `</div></div>`;
+            });
             
-            if (moduleId === 1) {
-                testHTML += `
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeX3_N7CrqGx1qk9kY3N6b2n8oJ7zHvXq4pQ5w0LmN0gq9z0w/viewform?embedded=true" 
-                            width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
-                `;
-            } else if (moduleId === 2) {
-                testHTML += `
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd7v7n8oJ7zHvXq4pQ5w0LmN0gq9z0w/viewform?embedded=true" 
-                            width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
-                `;
-            } else {
-                testHTML += `
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfK9kY3N6b2n8oJ7zHvXq4pQ5w0LmN0gq9z0w/viewform?embedded=true" 
-                            width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
-                `;
-            }
+            testHTML += `<button type="submit" class="btn">Завершить тест</button></form>`;
             
             testContent.innerHTML = testHTML;
+            
+            // Добавляем обработчик отправки формы теста
+            document.getElementById('testForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitTest(moduleId);
+            });
+        }
+        
+        async function submitTest(moduleId) {
+            const formData = new FormData(document.getElementById('testForm'));
+            const answers = {};
+            let score = 0;
+            
+            // Собираем ответы и проверяем правильность
+            tests[moduleId].forEach(q => {
+                if (q.type === 'radio') {
+                    const answer = parseInt(formData.get(`question${q.id}`));
+                    answers[q.id] = answer;
+                    if (answer === q.correctAnswer) {
+                        score++;
+                    }
+                } else if (q.type === 'checkbox') {
+                    const selectedOptions = formData.getAll(`question${q.id}`).map(val => parseInt(val));
+                    answers[q.id] = selectedOptions;
+                    
+                    // Проверяем, все ли правильные ответы отмечены и нет ли лишних
+                    const isCorrect = arraysEqual(selectedOptions.sort(), q.correctAnswers.sort());
+                    if (isCorrect) {
+                        score++;
+                    }
+                } else if (q.type === 'text') {
+                    const answer = formData.get(`question${q.id}`);
+                    answers[q.id] = answer;
+                    // Для текстовых ответов оценка будет производиться вручную
+                }
+            });
+            
+            // Сохраняем результаты в Supabase
+            const { error } = await supabase
+                .from('test_results')
+                .insert([
+                    { 
+                        user_id: userId,
+                        module: moduleId,
+                        answers: answers,
+                        score: score,
+                        max_score: tests[moduleId].length,
+                        completion_time: new Date().toISOString()
+                    }
+                ]);
+            
+            if (error) {
+                console.error('Ошибка при сохранении результатов:', error);
+                alert('Произошла ошибка при сохранении результатов. Пожалуйста, попробуйте еще раз.');
+                return;
+            }
+            
+            completeTest(moduleId, score);
         }
         
         function completeTest(moduleId, score) {
@@ -495,13 +751,25 @@
             // Обновляем статус модуля
             updateModuleStatus(moduleId);
             
+            // Закрываем модальное окно теста
+            closeModal('testModal');
+            
             // Если это последний модуль, показываем сообщение об успехе
             if (moduleId === 3) {
+                // Обновляем время завершения для пользователя
+                supabase
+                    .from('users')
+                    .update({ end_time: new Date().toISOString() })
+                    .eq('id', userId)
+                    .then(({ error }) => {
+                        if (error) {
+                            console.error('Ошибка при обновлении времени завершения:', error);
+                        }
+                    });
+                
                 setTimeout(() => {
-                    closeModal('testModal');
                     document.getElementById('successModal').style.display = 'flex';
-                    sendResultsToEmail();
-                }, 1000);
+                }, 500);
             }
             
             // Активируем кнопку следующего модуля, если он есть
@@ -514,7 +782,7 @@
             const statusElement = document.getElementById(`status${moduleId}`);
             
             if (moduleProgress[moduleId].completed) {
-                statusElement.textContent = 'Завершен';
+                statusElement.textContent = `Завершен (${moduleProgress[moduleId].score}/${tests[moduleId].length})`;
                 statusElement.className = 'module-status status-completed';
             } else if (moduleProgress[moduleId].started) {
                 statusElement.textContent = 'В процессе';
@@ -525,22 +793,13 @@
             }
         }
         
-        function sendResultsToEmail() {
-            // В реальном проекте здесь будет код для отправки данных
-            // Для демонстрации просто выводим в консоль
-            const endTime = new Date();
-            const timeSpent = startTime ? Math.round((endTime - startTime) / 1000 / 60) : 0;
-            
-            console.log('Данные кандидата:');
-            console.log('Имя: ', userData.name);
-            console.log('Email: ', userData.email);
-            console.log('Телефон: ', userData.phone);
-            console.log('Результаты:');
-            console.log('Модуль 1: ', moduleProgress[1].score + '/3');
-            console.log('Модуль 2: ', moduleProgress[2].score + '/3');
-            console.log('Модуль 3: ', moduleProgress[3].score + '/3');
-            console.log('Время прохождения: ', timeSpent + ' минут');
-            console.log('Время завершения: ', endTime.toLocaleString('ru-RU'));
+        // Вспомогательная функция для сравнения массивов
+        function arraysEqual(a, b) {
+            if (a.length !== b.length) return false;
+            for (let i = 0; i < a.length; i++) {
+                if (a[i] !== b[i]) return false;
+            }
+            return true;
         }
         
         // Обработчик отправки формы пользовательских данных
@@ -569,11 +828,6 @@
                 });
             });
         });
-        
-        // Эмуляция завершения теста (в реальном проекте будет вызываться из iframe)
-        function simulateTestCompletion(moduleId, score) {
-            completeTest(moduleId, score);
-        }
     </script>
 </body>
 </html>
