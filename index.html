@@ -1,121 +1,579 @@
-import { useState } from "react";
-
-export default function AcademyOnboarding() {
-  const [currentModule, setCurrentModule] = useState(1);
-  const [finished, setFinished] = useState(false);
-
-  const modules = [
-    {
-      id: 1,
-      title: "ТоВ: как мы говорим через текст",
-      video: "/videos/video1.mp4",
-      formUrl: "https://docs.google.com/forms/d/e/FORM_ID_MODULE1/viewform?embedded=true",
-    },
-    {
-      id: 2,
-      title: "Редактура",
-      video: "/videos/video2.mp4",
-      formUrl: "https://docs.google.com/forms/d/e/FORM_ID_MODULE2/viewform?embedded=true",
-    },
-    {
-      id: 3,
-      title: "Предметы",
-      video: "/videos/video3.mp4",
-      formUrl: "https://docs.google.com/forms/d/e/FORM_ID_MODULE3/viewform?embedded=true",
-    },
-  ];
-
-  const handleNext = () => {
-    if (currentModule < modules.length) {
-      setCurrentModule(currentModule + 1);
-    } else {
-      setFinished(true);
-    }
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gray-50 text-gray-800">
-      {/* Header */}
-      <header className="w-full max-w-3xl px-4 py-6 flex justify-between items-center border-b">
-        <img src="/logo.png" alt="Академблок" className="h-10" />
-        <span className="text-sm text-gray-600">
-          Модуль {currentModule} из {modules.length}
-        </span>
-      </header>
-
-      {/* Greeting */}
-      <section className="w-full max-w-3xl px-4 py-6">
-        <h1 className="text-2xl font-bold mb-2">Добро пожаловать!</h1>
-        <p className="text-gray-700">
-          Вас приветствует академический директор. Здесь вы познакомитесь с принципами нашей работы и пройдете обучение для авторов и редакторов.
-        </p>
-      </section>
-
-      {/* Modules */}
-      {!finished && (
-        <section className="w-full max-w-3xl px-4 py-6">
-          <h2 className="text-xl font-semibold mb-4">{modules[currentModule - 1].title}</h2>
-          <video
-            controls
-            src={modules[currentModule - 1].video}
-            className="w-full rounded-2xl shadow mb-4"
-          />
-
-          <div className="w-full h-[600px] border rounded-2xl overflow-hidden mb-4">
-            <iframe
-              src={modules[currentModule - 1].formUrl}
-              className="w-full h-full"
-              frameBorder="0"
-              marginHeight="0"
-              marginWidth="0"
-              title={`Форма модуля ${modules[currentModule - 1].id}`}
-            >
-              Загрузка…
-            </iframe>
-          </div>
-
-          <button
-            onClick={handleNext}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
-          >
-            {currentModule < modules.length ? "Перейти к следующему модулю" : "Завершить обучение"}
-          </button>
-        </section>
-      )}
-
-      {/* Finish */}
-      {finished && (
-        <section className="w-full max-w-3xl px-4 py-6 text-center">
-          <div className="bg-white p-8 rounded-2xl shadow">
-            <h2 className="text-xl font-semibold mb-4">Спасибо!</h2>
-            <p className="text-gray-700">
-              Благодарим, вернемся с обратной связью в течение 3 дней.
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* Resources */}
-      <footer className="w-full max-w-3xl px-4 py-6 border-t mt-8">
-        <h3 className="text-lg font-semibold mb-2">Полезные ресурсы</h3>
-        <ul className="list-disc list-inside text-blue-600">
-          <li>
-            <a href="https://docs.google.com/document/..." target="_blank" rel="noopener noreferrer">
-              Гайд по стилю
-            </a>
-          </li>
-          <li>
-            <a href="https://notion.so/..." target="_blank" rel="noopener noreferrer">
-              Рабочая база Notion
-            </a>
-          </li>
-          <li>
-            <a href="https://wiki.company/..." target="_blank" rel="noopener noreferrer">
-              Wiki проекта
-            </a>
-          </li>
-        </ul>
-      </footer>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academy: Онбординг внештатных авторов</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #27ae60;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .welcome-section {
+            background-color: var(--light-color);
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .welcome-section p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .module {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 40px 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .module:hover {
+            transform: translateY(-5px);
+        }
+        
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+        
+        .module-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-not-started {
+            background-color: #f1f1f1;
+            color: #777;
+        }
+        
+        .status-in-progress {
+            background-color: #ffeaa7;
+            color: #d35400;
+        }
+        
+        .status-completed {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .btn-disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-disabled:hover {
+            background-color: #ccc;
+        }
+        
+        .resources-section {
+            background-color: var(--light-color);
+            padding: 60px 0;
+        }
+        
+        .resources-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--primary-color);
+        }
+        
+        .resources-list {
+            list-style-type: none;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .resources-list li {
+            margin-bottom: 15px;
+        }
+        
+        .resources-list a {
+            display: block;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .resources-list a:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: var(--secondary-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .success-message h2 {
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .module-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .module-status {
+                margin-top: 10px;
+            }
+            
+            .welcome-section h1 {
+                font-size: 2rem;
+            }
+            
+            .module-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">Академблок</div>
+        </div>
+    </header>
+    
+    <section class="welcome-section">
+        <div class="container">
+            <h1>Добро пожаловать в академию внештатных авторов!</h1>
+            <p>Мы рады приветствовать вас в нашей команде! Это обучающая платформа поможет вам освоить ключевые принципы работы и качественно выполнять задачи. Пройдите все модули, чтобы стать частью нашей команды.</p>
+        </div>
+    </section>
+    
+    <div class="container">
+        <div class="module" id="module1">
+            <div class="module-header">
+                <h2 class="module-title">Модуль 1: ТоВ - как мы говорим через текст</h2>
+                <span class="module-status status-not-started" id="status1">Не начат</span>
+            </div>
+            <div class="video-container">
+                <video controls poster="video-poster1.jpg">
+                    <source src="video1_tov.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео тег.
+                </video>
+            </div>
+            <button class="btn" onclick="openTestModal(1)">Перейти к тесту</button>
+        </div>
+        
+        <div class="module" id="module2">
+            <div class="module-header">
+                <h2 class="module-title">Модуль 2: Редактура</h2>
+                <span class="module-status status-not-started" id="status2">Не начат</span>
+            </div>
+            <div class="video-container">
+                <video controls poster="video-poster2.jpg">
+                    <source src="video2_editing.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео тег.
+                </video>
+            </div>
+            <button class="btn btn-disabled" id="btn-module2" onclick="openTestModal(2)">Перейти к тесту</button>
+        </div>
+        
+        <div class="module" id="module3">
+            <div class="module-header">
+                <h2 class="module-title">Модуль 3: Предметы</h2>
+                <span class="module-status status-not-started" id="status3">Не начат</span>
+            </div>
+            <div class="video-container">
+                <video controls poster="video-poster3.jpg">
+                    <source src="video3_subjects.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео тег.
+                </video>
+            </div>
+            <button class="btn btn-disabled" id="btn-module3" onclick="openTestModal(3)">Перейти к тесту</button>
+        </div>
     </div>
-  );
-}
+    
+    <section class="resources-section">
+        <div class="container">
+            <h2>Полезные ресурсы</h2>
+            <ul class="resources-list">
+                <li><a href="https://docs.google.com/document/d/12345" target="_blank">Гайд по стилю написания текстов</a></li>
+                <li><a href="https://www.notion.so/example" target="_blank">База знаний Академблок</a></li>
+                <li><a href="https://wiki.example.com/editing" target="_blank">Руководство по редактуре</a></li>
+                <li><a href="https://docs.google.com/presentation/d/12345" target="_blank">Презентация основных принципов</a></li>
+            </ul>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <p>Академблок &copy; 2023. Все права защищены.</p>
+        </div>
+    </footer>
+    
+    <!-- Модальное окно для ввода данных -->
+    <div class="modal" id="userDataModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('userDataModal')">&times;</span>
+            <h2>Пожалуйста, представьтесь</h2>
+            <p>Перед началом теста нам нужно знать, как к вам обращаться и как с вами связаться.</p>
+            <form id="userDataForm">
+                <div class="form-group">
+                    <label for="userName">Имя и Фамилия*</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Электронная почта</label>
+                    <input type="email" id="userEmail">
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Номер для связи*</label>
+                    <input type="tel" id="userPhone" required>
+                </div>
+                <input type="hidden" id="currentModule">
+                <button type="submit" class="btn">Начать тест</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Модальное окно с тестом -->
+    <div class="modal" id="testModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('testModal')">&times;</span>
+            <div id="testContent">
+                <!-- Контент теста будет загружен здесь -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно с сообщением об успехе -->
+    <div class="modal" id="successModal">
+        <div class="modal-content success-message">
+            <h2>Благодарим за прохождение обучения!</h2>
+            <p>Мы вернемся с обратной связью в течение 3 дней.</p>
+            <button class="btn" onclick="closeModal('successModal')">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Переменные для хранения данных пользователя и прогресса
+        let userData = {
+            name: '',
+            email: '',
+            phone: ''
+        };
+        
+        let moduleProgress = {
+            1: { started: false, completed: false, score: 0 },
+            2: { started: false, completed: false, score: 0 },
+            3: { started: false, completed: false, score: 0 }
+        };
+        
+        let startTime = null;
+        
+        // Функции для работы с модальными окнами
+        function openTestModal(moduleId) {
+            // Проверяем, можно ли начать этот модуль
+            if (moduleId > 1 && !moduleProgress[moduleId - 1].completed) {
+                alert('Сначала завершите предыдущий модуль!');
+                return;
+            }
+            
+            document.getElementById('currentModule').value = moduleId;
+            document.getElementById('userDataModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function startTest(moduleId) {
+            closeModal('userDataModal');
+            
+            // Записываем время начала прохождения тестов, если это первый модуль
+            if (moduleId === 1 && !startTime) {
+                startTime = new Date();
+            }
+            
+            // Загружаем соответствующий тест
+            loadTest(moduleId);
+            document.getElementById('testModal').style.display = 'flex';
+            
+            // Обновляем статус модуля
+            moduleProgress[moduleId].started = true;
+            updateModuleStatus(moduleId);
+        }
+        
+        function loadTest(moduleId) {
+            const testContent = document.getElementById('testContent');
+            
+            // В реальном проекте здесь будет загрузка соответствующего теста
+            // Для демонстрации используем заглушки
+            
+            let testHTML = `<h2>Тест к модулю ${moduleId}</h2>`;
+            
+            if (moduleId === 1) {
+                testHTML += `
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeX3_N7CrqGx1qk9kY3N6b2n8oJ7zHvXq4pQ5w0LmN0gq9z0w/viewform?embedded=true" 
+                            width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
+                `;
+            } else if (moduleId === 2) {
+                testHTML += `
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd7v7n8oJ7zHvXq4pQ5w0LmN0gq9z0w/viewform?embedded=true" 
+                            width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
+                `;
+            } else {
+                testHTML += `
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfK9kY3N6b2n8oJ7zHvXq4pQ5w0LmN0gq9z0w/viewform?embedded=true" 
+                            width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
+                `;
+            }
+            
+            testContent.innerHTML = testHTML;
+        }
+        
+        function completeTest(moduleId, score) {
+            // Обновляем прогресс модуля
+            moduleProgress[moduleId].completed = true;
+            moduleProgress[moduleId].score = score;
+            
+            // Обновляем статус модуля
+            updateModuleStatus(moduleId);
+            
+            // Если это последний модуль, показываем сообщение об успехе
+            if (moduleId === 3) {
+                setTimeout(() => {
+                    closeModal('testModal');
+                    document.getElementById('successModal').style.display = 'flex';
+                    sendResultsToEmail();
+                }, 1000);
+            }
+            
+            // Активируем кнопку следующего модуля, если он есть
+            if (moduleId < 3) {
+                document.getElementById(`btn-module${moduleId + 1}`).classList.remove('btn-disabled');
+            }
+        }
+        
+        function updateModuleStatus(moduleId) {
+            const statusElement = document.getElementById(`status${moduleId}`);
+            
+            if (moduleProgress[moduleId].completed) {
+                statusElement.textContent = 'Завершен';
+                statusElement.className = 'module-status status-completed';
+            } else if (moduleProgress[moduleId].started) {
+                statusElement.textContent = 'В процессе';
+                statusElement.className = 'module-status status-in-progress';
+            } else {
+                statusElement.textContent = 'Не начат';
+                statusElement.className = 'module-status status-not-started';
+            }
+        }
+        
+        function sendResultsToEmail() {
+            // В реальном проекте здесь будет код для отправки данных
+            // Для демонстрации просто выводим в консоль
+            const endTime = new Date();
+            const timeSpent = startTime ? Math.round((endTime - startTime) / 1000 / 60) : 0;
+            
+            console.log('Данные кандидата:');
+            console.log('Имя: ', userData.name);
+            console.log('Email: ', userData.email);
+            console.log('Телефон: ', userData.phone);
+            console.log('Результаты:');
+            console.log('Модуль 1: ', moduleProgress[1].score + '/3');
+            console.log('Модуль 2: ', moduleProgress[2].score + '/3');
+            console.log('Модуль 3: ', moduleProgress[3].score + '/3');
+            console.log('Время прохождения: ', timeSpent + ' минут');
+            console.log('Время завершения: ', endTime.toLocaleString('ru-RU'));
+        }
+        
+        // Обработчик отправки формы пользовательских данных
+        document.getElementById('userDataForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Сохраняем данные пользователя
+            userData.name = document.getElementById('userName').value;
+            userData.email = document.getElementById('userEmail').value;
+            userData.phone = document.getElementById('userPhone').value;
+            
+            const moduleId = document.getElementById('currentModule').value;
+            startTest(parseInt(moduleId));
+        });
+        
+        // Инициализация видеоплееров
+        document.addEventListener('DOMContentLoaded', function() {
+            const videos = document.querySelectorAll('video');
+            videos.forEach(video => {
+                video.addEventListener('play', function() {
+                    const moduleId = parseInt(this.closest('.module').id.replace('module', ''));
+                    if (!moduleProgress[moduleId].started) {
+                        moduleProgress[moduleId].started = true;
+                        updateModuleStatus(moduleId);
+                    }
+                });
+            });
+        });
+        
+        // Эмуляция завершения теста (в реальном проекте будет вызываться из iframe)
+        function simulateTestCompletion(moduleId, score) {
+            completeTest(moduleId, score);
+        }
+    </script>
+</body>
+</html>
