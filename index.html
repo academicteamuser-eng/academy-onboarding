@@ -388,8 +388,6 @@
                 font-size: 1.5rem;
             }
         }
-
-       
     </style>
 </head>
 <body>
@@ -442,7 +440,7 @@
             </div>
             <div class="video-container">
                 <video controls poster="video-poster3.jpg">
-                    <source src="video3_subjects.mp4" type="video/mp4">
+                    <source src 'video3_subjects.mp4' type='video/mp4'>
                     Ваш браузер не поддерживает видео тег.
                 </video>
             </div>
@@ -517,7 +515,7 @@
     <script>
         // Инициализация Supabase
         const SUPABASE_URL = 'https://ebrxicfaclqqgbjdwtoi.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhbmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
