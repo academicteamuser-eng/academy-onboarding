@@ -329,6 +329,13 @@
             font-family: var(--heading-font);
         }
         
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
         .question {
             margin-bottom: 20px;
             padding-bottom: 20px;
@@ -440,7 +447,7 @@
             </div>
             <div class="video-container">
                 <video controls poster="video-poster3.jpg">
-                    <source src 'video3_subjects.mp4' type='video/mp4'>
+                    <source src="video3_subjects.mp4" type="video/mp4">
                     Ваш браузер не поддерживает видео тег.
                 </video>
             </div>
@@ -485,6 +492,7 @@
                     <label for="userPhone">Номер для связи*</label>
                     <input type="tel" id="userPhone" required>
                 </div>
+                <div id="formError" class="error-message"></div>
                 <input type="hidden" id="currentModule">
                 <button type="submit" class="btn">Начать тест</button>
             </form>
@@ -621,7 +629,7 @@
                         "Основной упор на запоминание фактов и воспроизведение изученного материала",
                         "Использование сложных терминов для академичности",
                         "Создание материалов исключительно для автоматизированной проверки",
-                        "Работа в группах и обсуждение учениками изучаемых тем между собой"
+                        "Работа в группы и обсуждение учениками изучаемых тем между собой"
                     ],
                     correctAnswer: 2
                 },
@@ -663,31 +671,49 @@
             document.getElementById(modalId).style.display = 'none';
         }
         
+        function showError(message) {
+            const errorElement = document.getElementById('formError');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function hideError() {
+            const errorElement = document.getElementById('formError');
+            errorElement.style.display = 'none';
+        }
+        
         async function startTest(moduleId) {
             closeModal('userDataModal');
+            hideError();
             
             if (moduleId === 1 && !startTime) {
                 startTime = new Date();
                 
-                const { data, error } = await supabase
-                    .from('users')
-                    .insert([
-                        { 
-                            name: userData.name, 
-                            email: userData.email, 
-                            phone: userData.phone,
-                            start_time: new Date().toISOString()
-                        }
-                    ])
-                    .select();
-                
-                if (error) {
-                    console.error('Ошибка при сохранении пользователя:', error);
-                    alert('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
+                try {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .insert([
+                            { 
+                                name: userData.name, 
+                                email: userData.email, 
+                                phone: userData.phone,
+                                start_time: new Date().toISOString()
+                            }
+                        ])
+                        .select();
+                    
+                    if (error) {
+                        console.error('Ошибка при сохранении пользователя:', error);
+                        showError('Ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.');
+                        return;
+                    }
+                    
+                    userId = data[0].id;
+                } catch (err) {
+                    console.error('Исключение при сохранении пользователя:', err);
+                    showError('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
                     return;
                 }
-                
-                userId = data[0].id;
             }
             
             loadTest(moduleId);
@@ -769,26 +795,31 @@
                 }
             });
             
-            const { error } = await supabase
-                .from('test_results')
-                .insert([
-                    { 
-                        user_id: userId,
-                        module: moduleId,
-                        answers: answers,
-                        score: score,
-                        max_score: tests[moduleId].length,
-                        completion_time: new Date().toISOString()
-                    }
-                ]);
-            
-            if (error) {
-                console.error('Ошибка при сохранении результатов:', error);
-                alert('Произошла ошибка при сохранении результатов. Пожалуйста, попробуйте еще раз.');
-                return;
+            try {
+                const { error } = await supabase
+                    .from('test_results')
+                    .insert([
+                        { 
+                            user_id: userId,
+                            module: moduleId,
+                            answers: answers,
+                            score: score,
+                            max_score: tests[moduleId].length,
+                            completion_time: new Date().toISOString()
+                        }
+                    ]);
+                
+                if (error) {
+                    console.error('Ошибка при сохранении результатов:', error);
+                    showError('Ошибка при сохранении результатов. Пожалуйста, попробуйте еще раз.');
+                    return;
+                }
+                
+                completeTest(moduleId, score);
+            } catch (err) {
+                console.error('Исключение при сохранении результатов:', err);
+                showError('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
             }
-            
-            completeTest(moduleId, score);
         }
         
         function completeTest(moduleId, score) {
@@ -845,10 +876,22 @@
         
         document.getElementById('userDataForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            hideError();
             
             userData.name = document.getElementById('userName').value;
             userData.email = document.getElementById('userEmail').value;
             userData.phone = document.getElementById('userPhone').value;
+            
+            // Валидация данных
+            if (!userData.name.trim()) {
+                showError('Пожалуйста, введите имя и фамилию');
+                return;
+            }
+            
+            if (!userData.phone.trim()) {
+                showError('Пожалуйста, введите номер телефона');
+                return;
+            }
             
             const moduleId = document.getElementById('currentModule').value;
             startTest(parseInt(moduleId));
