@@ -522,8 +522,9 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
         // Инициализация Supabase
+        // ЗАМЕНИТЕ эти значения на свои из панели управления Supabase
         const SUPABASE_URL = 'https://ebrxicfaclqqgbjdwtoi.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhbmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicnhpY2ZhY2xxcWdiamR3dG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjM2OTIsImV4cCI6MjA3MjU5OTY5Mn0.dw2DsmhSqkKhIIV3G-iG5K3MhqnLvczXyxlwbd4nb_w';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
@@ -587,7 +588,7 @@
             2: [
                 {
                     id: 1,
-                    question: "Какой этап работы с текстами часто пропускают авторы, что приводит к проблемам на поздних стадиях?",
+                    question: "Какой этап работы с текстом часто пропускают авторы, что приводит к проблемам на поздних стадиях?",
                     type: "radio",
                     options: [
                         "Финальная вычитка орфографии.",
@@ -607,13 +608,13 @@
                         "Объединить несколько вопросов в одном абзаце.",
                         "Написать несколько примеров для иллюстрации мыслей."
                     ],
-                    correctAnswers: [0, 1]
+                    correctAnswers: [0, 1] // Правильные ответы: первый и второй
                 },
                 {
                     id: 3,
                     question: "Какие инструменты вы будете использовать для проверки текста перед сдачей работы?",
                     type: "text",
-                    correctAnswer: ""
+                    correctAnswer: "" // Правильный ответ будет проверяться вручную
                 }
             ],
             3: [
@@ -629,7 +630,7 @@
                         "Основной упор на запоминание фактов и воспроизведение изученного материала",
                         "Использование сложных терминов для академичности",
                         "Создание материалов исключительно для автоматизированной проверки",
-                        "Работа в группы и обсуждение учениками изучаемых тем между собой"
+                        "Работа в группах и обсуждение учениками изучаемых тем между собой"
                     ],
                     correctAnswer: 2
                 },
@@ -651,13 +652,14 @@
                     id: 3,
                     question: "Ваш коллега использует нейросеть для создания задания по литературе и просто копирует результат без изменений. Почему это проблема?",
                     type: "text",
-                    correctAnswer: ""
+                    correctAnswer: "" // Правильный ответ будет проверяться вручную
                 }
             ]
         };
         
         // Функции для работы с модальными окнами
         function openTestModal(moduleId) {
+            // Проверяем, можно ли начать этот модуль
             if (moduleId > 1 && !moduleProgress[moduleId - 1].completed) {
                 alert('Сначала завершите предыдущий модуль!');
                 return;
@@ -671,54 +673,40 @@
             document.getElementById(modalId).style.display = 'none';
         }
         
-        function showError(message) {
-            const errorElement = document.getElementById('formError');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-        
-        function hideError() {
-            const errorElement = document.getElementById('formError');
-            errorElement.style.display = 'none';
-        }
-        
         async function startTest(moduleId) {
             closeModal('userDataModal');
-            hideError();
             
+            // Записываем время начала прохождения тестов, если это первый модуль
             if (moduleId === 1 && !startTime) {
                 startTime = new Date();
                 
-                try {
-                    const { data, error } = await supabase
-                        .from('users')
-                        .insert([
-                            { 
-                                name: userData.name, 
-                                email: userData.email, 
-                                phone: userData.phone,
-                                start_time: new Date().toISOString()
-                            }
-                        ])
-                        .select();
-                    
-                    if (error) {
-                        console.error('Ошибка при сохранении пользователя:', error);
-                        showError('Ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.');
-                        return;
-                    }
-                    
-                    userId = data[0].id;
-                } catch (err) {
-                    console.error('Исключение при сохранении пользователя:', err);
-                    showError('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
+                // Сохраняем пользователя в Supabase
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([
+                        { 
+                            name: userData.name, 
+                            email: userData.email, 
+                            phone: userData.phone,
+                            start_time: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) {
+                    console.error('Ошибка при сохранении пользователя:', error);
+                    alert('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
                     return;
                 }
+                
+                userId = data[0].id;
             }
             
+            // Загружаем соответствующий тест
             loadTest(moduleId);
             document.getElementById('testModal').style.display = 'flex';
             
+            // Обновляем статус модуля
             moduleProgress[moduleId].started = true;
             updateModuleStatus(moduleId);
         }
@@ -763,6 +751,7 @@
             
             testContent.innerHTML = testHTML;
             
+            // Добавляем обработчик отправки формы теста
             document.getElementById('testForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 submitTest(moduleId);
@@ -774,6 +763,7 @@
             const answers = {};
             let score = 0;
             
+            // Собираем ответы и проверяем правильность
             tests[moduleId].forEach(q => {
                 if (q.type === 'radio') {
                     const answer = parseInt(formData.get(`question${q.id}`));
@@ -785,6 +775,7 @@
                     const selectedOptions = formData.getAll(`question${q.id}`).map(val => parseInt(val));
                     answers[q.id] = selectedOptions;
                     
+                    // Проверяем, все ли правильные ответы отмечены и нет ли лишних
                     const isCorrect = arraysEqual(selectedOptions.sort(), q.correctAnswers.sort());
                     if (isCorrect) {
                         score++;
@@ -792,45 +783,47 @@
                 } else if (q.type === 'text') {
                     const answer = formData.get(`question${q.id}`);
                     answers[q.id] = answer;
+                    // Для текстовых ответов оценка будет производиться вручную
                 }
             });
             
-            try {
-                const { error } = await supabase
-                    .from('test_results')
-                    .insert([
-                        { 
-                            user_id: userId,
-                            module: moduleId,
-                            answers: answers,
-                            score: score,
-                            max_score: tests[moduleId].length,
-                            completion_time: new Date().toISOString()
-                        }
-                    ]);
-                
-                if (error) {
-                    console.error('Ошибка при сохранении результатов:', error);
-                    showError('Ошибка при сохранении результатов. Пожалуйста, попробуйте еще раз.');
-                    return;
-                }
-                
-                completeTest(moduleId, score);
-            } catch (err) {
-                console.error('Исключение при сохранении результатов:', err);
-                showError('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
+            // Сохраняем результаты в Supabase
+            const { error } = await supabase
+                .from('test_results')
+                .insert([
+                    { 
+                        user_id: userId,
+                        module: moduleId,
+                        answers: answers,
+                        score: score,
+                        max_score: tests[moduleId].length,
+                        completion_time: new Date().toISOString()
+                    }
+                ]);
+            
+            if (error) {
+                console.error('Ошибка при сохранении результатов:', error);
+                alert('Произошла ошибка при сохранении результатов. Пожалуйста, попробуйте еще раз.');
+                return;
             }
+            
+            completeTest(moduleId, score);
         }
         
         function completeTest(moduleId, score) {
+            // Обновляем прогресс модуля
             moduleProgress[moduleId].completed = true;
             moduleProgress[moduleId].score = score;
             
+            // Обновляем статус модуля
             updateModuleStatus(moduleId);
             
+            // Закрываем модальное окно теста
             closeModal('testModal');
             
+            // Если это последний модуль, показываем сообщение об успехе
             if (moduleId === 3) {
+                // Обновляем время завершения для пользователя
                 supabase
                     .from('users')
                     .update({ end_time: new Date().toISOString() })
@@ -846,6 +839,7 @@
                 }, 500);
             }
             
+            // Активируем кнопку следующего модуля, если он есть
             if (moduleId < 3) {
                 document.getElementById(`btn-module${moduleId + 1}`).classList.remove('btn-disabled');
             }
@@ -866,6 +860,7 @@
             }
         }
         
+        // Вспомогательная функция для сравнения массивов
         function arraysEqual(a, b) {
             if (a.length !== b.length) return false;
             for (let i = 0; i < a.length; i++) {
@@ -874,29 +869,20 @@
             return true;
         }
         
+        // Обработчик отправки формы пользовательских данных
         document.getElementById('userDataForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            hideError();
             
+            // Сохраняем данные пользователя
             userData.name = document.getElementById('userName').value;
             userData.email = document.getElementById('userEmail').value;
             userData.phone = document.getElementById('userPhone').value;
-            
-            // Валидация данных
-            if (!userData.name.trim()) {
-                showError('Пожалуйста, введите имя и фамилию');
-                return;
-            }
-            
-            if (!userData.phone.trim()) {
-                showError('Пожалуйста, введите номер телефона');
-                return;
-            }
             
             const moduleId = document.getElementById('currentModule').value;
             startTest(parseInt(moduleId));
         });
         
+        // Инициализация видеоплееров
         document.addEventListener('DOMContentLoaded', function() {
             const videos = document.querySelectorAll('video');
             videos.forEach(video => {
