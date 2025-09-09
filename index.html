@@ -418,12 +418,12 @@
                 <span class="module-status status-not-started" id="status1">Не начат</span>
             </div>
             <div class="video-container">
-                <video controls poster="video-poster1.jpg">
+                <video controls poster="video-poster1.jpg" id="video1">
                     <source src="video1_tov.mp4" type="video/mp4">
                     Ваш браузер не поддерживает видео тег.
                 </video>
             </div>
-            <button class="btn" onclick="openTestModal(1)">Перейти к тесту</button>
+            <button class="btn btn-disabled" id="btn-module1" onclick="openTestModal(1)">Перейти к тесту</button>
         </div>
         
         <div class="module" id="module2">
@@ -432,7 +432,7 @@
                 <span class="module-status status-not-started" id="status2">Не начат</span>
             </div>
             <div class="video-container">
-                <video controls poster="video-poster2.jpg">
+                <video controls poster="video-poster2.jpg" id="video2">
                     <source src="video2_editing.mp4" type="video/mp4">
                     Ваш браузер не поддерживает видео тег.
                 </video>
@@ -446,7 +446,7 @@
                 <span class="module-status status-not-started" id="status3">Не начат</span>
             </div>
             <div class="video-container">
-                <video controls poster="video-poster3.jpg">
+                <video controls poster="video-poster3.jpg" id="video3">
                     <source src="video3_subjects.mp4" type="video/mp4">
                     Ваш браузер не поддерживает видео тег.
                 </video>
@@ -489,8 +489,8 @@
                     <input type="email" id="userEmail">
                 </div>
                 <div class="form-group">
-                    <label for="userPhone">Номер для связи*</label>
-                    <input type="tel" id="userPhone" required>
+                    <label for="userPhone">Номер для связи</label>
+                    <input type="tel" id="userPhone">
                 </div>
                 <div id="formError" class="error-message"></div>
                 <input type="hidden" id="currentModule">
@@ -537,9 +537,9 @@
         
         let userId = null;
         let moduleProgress = {
-            1: { started: false, completed: false, score: 0 },
-            2: { started: false, completed: false, score: 0 },
-            3: { started: false, completed: false, score: 0 }
+            1: { started: false, completed: false, score: 0, videoWatched: false },
+            2: { started: false, completed: false, score: 0, videoWatched: false },
+            3: { started: false, completed: false, score: 0, videoWatched: false }
         };
         
         let startTime = null;
@@ -659,14 +659,22 @@
         
         // Функции для работы с модальными окнами
         function openTestModal(moduleId) {
-            // Проверяем, можно ли начать этот модуль
-            if (moduleId > 1 && !moduleProgress[moduleId - 1].completed) {
-                alert('Сначала завершите предыдущий модуль!');
+            // Проверяем, просмотрено ли видео
+            if (!moduleProgress[moduleId].videoWatched) {
+                alert('Пожалуйста, сначала посмотрите видео этого модуля, чтобы разблокировать тест.');
                 return;
             }
             
-            document.getElementById('currentModule').value = moduleId;
-            document.getElementById('userDataModal').style.display = 'flex';
+            // Проверяем, введены ли данные пользователя
+            const savedUserData = localStorage.getItem('userData');
+            if (savedUserData) {
+                userData = JSON.parse(savedUserData);
+                userId = localStorage.getItem('userId');
+                startTest(moduleId);
+            } else {
+                document.getElementById('currentModule').value = moduleId;
+                document.getElementById('userDataModal').style.display = 'flex';
+            }
         }
         
         function closeModal(modalId) {
@@ -676,9 +684,10 @@
         async function startTest(moduleId) {
             closeModal('userDataModal');
             
-            // Записываем время начала прохождения тестов, если это первый модуль
-            if (moduleId === 1 && !startTime) {
+            // Записываем время начала прохождения тестов, если это первый запуск
+            if (!startTime && !localStorage.getItem('startTime')) {
                 startTime = new Date();
+                localStorage.setItem('startTime', startTime.toISOString());
                 
                 // Сохраняем пользователя в Supabase
                 const { data, error } = await supabase
@@ -688,7 +697,7 @@
                             name: userData.name, 
                             email: userData.email, 
                             phone: userData.phone,
-                            start_time: new Date().toISOString()
+                            start_time: startTime.toISOString()
                         }
                     ])
                     .select();
@@ -700,6 +709,11 @@
                 }
                 
                 userId = data[0].id;
+                localStorage.setItem('userId', userId);
+            } else if (!startTime) {
+                // Восстанавливаем время начала из localStorage
+                startTime = new Date(localStorage.getItem('startTime'));
+                userId = localStorage.getItem('userId');
             }
             
             // Загружаем соответствующий тест
@@ -815,14 +829,19 @@
             moduleProgress[moduleId].completed = true;
             moduleProgress[moduleId].score = score;
             
+            // Сохраняем прогресс в localStorage
+            localStorage.setItem('moduleProgress', JSON.stringify(moduleProgress));
+            
             // Обновляем статус модуля
             updateModuleStatus(moduleId);
             
             // Закрываем модальное окно теста
             closeModal('testModal');
             
-            // Если это последний модуль, показываем сообщение об успехе
-            if (moduleId === 3) {
+            // Проверяем, завершены ли все модули
+            const allCompleted = Object.values(moduleProgress).every(module => module.completed);
+            
+            if (allCompleted) {
                 // Обновляем время завершения для пользователя
                 supabase
                     .from('users')
@@ -837,11 +856,6 @@
                 setTimeout(() => {
                     document.getElementById('successModal').style.display = 'flex';
                 }, 500);
-            }
-            
-            // Активируем кнопку следующего модуля, если он есть
-            if (moduleId < 3) {
-                document.getElementById(`btn-module${moduleId + 1}`).classList.remove('btn-disabled');
             }
         }
         
@@ -878,19 +892,70 @@
             userData.email = document.getElementById('userEmail').value;
             userData.phone = document.getElementById('userPhone').value;
             
+            // Сохраняем данные в localStorage
+            localStorage.setItem('userData', JSON.stringify(userData));
+            
             const moduleId = document.getElementById('currentModule').value;
             startTest(parseInt(moduleId));
         });
         
         // Инициализация видеоплееров
         document.addEventListener('DOMContentLoaded', function() {
+            // Загружаем сохраненные данные
+            const savedUserData = localStorage.getItem('userData');
+            const savedProgress = localStorage.getItem('moduleProgress');
+            const savedUserId = localStorage.getItem('userId');
+            const savedStartTime = localStorage.getItem('startTime');
+            
+            if (savedUserData) {
+                userData = JSON.parse(savedUserData);
+                document.getElementById('userName').value = userData.name;
+                document.getElementById('userEmail').value = userData.email;
+                document.getElementById('userPhone').value = userData.phone;
+            }
+            
+            if (savedProgress) {
+                moduleProgress = JSON.parse(savedProgress);
+                
+                // Обновляем статусы модулей
+                for (let i = 1; i <= 3; i++) {
+                    updateModuleStatus(i);
+                }
+            }
+            
+            if (savedUserId) {
+                userId = savedUserId;
+            }
+            
+            if (savedStartTime) {
+                startTime = new Date(savedStartTime);
+            }
+            
+            // Настройка обработчиков для видео
             const videos = document.querySelectorAll('video');
-            videos.forEach(video => {
+            videos.forEach((video, index) => {
+                const moduleId = index + 1;
+                
+                // Проверяем, было ли видео уже просмотрено
+                if (moduleProgress[moduleId].videoWatched) {
+                    document.getElementById(`btn-module${moduleId}`).classList.remove('btn-disabled');
+                }
+                
                 video.addEventListener('play', function() {
-                    const moduleId = parseInt(this.closest('.module').id.replace('module', ''));
+                    const moduleId = parseInt(this.id.replace('video', ''));
                     if (!moduleProgress[moduleId].started) {
                         moduleProgress[moduleId].started = true;
                         updateModuleStatus(moduleId);
+                    }
+                });
+                
+                video.addEventListener('timeupdate', function() {
+                    const moduleId = parseInt(this.id.replace('video', ''));
+                    // Считаем видео просмотренным, если пользователь посмотрел более 90%
+                    if (this.currentTime > this.duration * 0.9 && !moduleProgress[moduleId].videoWatched) {
+                        moduleProgress[moduleId].videoWatched = true;
+                        document.getElementById(`btn-module${moduleId}`).classList.remove('btn-disabled');
+                        localStorage.setItem('moduleProgress', JSON.stringify(moduleProgress));
                     }
                 });
             });
