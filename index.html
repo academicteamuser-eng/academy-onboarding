@@ -822,6 +822,7 @@
                         score++;
                     }
                 } else if (q.type === 'text') {
+                    isCorrect = true;
                     const answer = formData.get(`question${q.id}`);
                     answers[q.id] = answer;
                     // Для текстовых ответов оценка будет производиться вручную
