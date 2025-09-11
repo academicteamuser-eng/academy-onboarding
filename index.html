@@ -922,9 +922,11 @@
         resultsHTML += `
                 </div>
                 
+                ${q.type !== 'text' ? `
                 <div style="margin-top: 10px; color: ${isCorrect ? 'var(--success-color)' : '#e74c3c'}; font-weight: 500;">
                     ${isCorrect ? '✓ Верно' : '✗ Неверно'}
                 </div>
+                ` : ''}
                 
                 
             </div>
