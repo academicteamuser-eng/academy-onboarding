@@ -921,9 +921,16 @@
         
         resultsHTML += `
                 </div>
+                if (q.type === 'radio' || q.type === 'checkbox') {
                 <div style="margin-top: 10px; color: ${isCorrect ? 'var(--success-color)' : '#e74c3c'}; font-weight: 500;">
                     ${isCorrect ? '✓ Верно' : '✗ Неверно'}
                 </div>
+                }
+                if (q.type === 'text') {
+                <div style="margin-top: 10px; color: ${isCorrect ? 'var(--success-color)' : '#e74c3c'}; font-weight: 500;">
+        
+                </div>
+                }
             </div>
         `;
     });
