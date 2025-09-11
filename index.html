@@ -825,6 +825,7 @@
                     const answer = formData.get(`question${q.id}`);
                     answers[q.id] = answer;
                     // Для текстовых ответов оценка будет производиться вручную
+                    isCorrect = true; // Всегда правильный для текстовых вопросов
                 }
             });
             
@@ -903,16 +904,18 @@
                 `;
             });
         } else if (q.type === 'text') {
+             // Всегда считаем текстовые ответы правильными
+            isCorrect = true;
             resultsHTML += `
                 <div style="margin-bottom: 10px;">
-                    <strong>Ваш ответ:</strong>
-                    <div style="padding: 10px; background-color: #f8f9fa; border-radius: 4px; margin-top: 5px;">
-                        ${userAnswer || 'Ответ не предоставлен'}
-                    </div>
-                </div>
-                <div style="color: #777; font-size: 0.9rem;">
-                    Текстовые ответы проверяются вручную модератором.
-                </div>
+            <strong>Ваш ответ:</strong>
+            <div style="padding: 10px; background-color: #d4edda; border-radius: 4px; margin-top: 5px; border-left: 3px solid var(--success-color);">
+                ${userAnswer || 'Ответ не предоставлен'}
+            </div>
+        </div>
+        <div style="color: var(--success-color); font-weight: 500;">
+            ✓ Ответ принят (развёрнутые ответы проверяются модератором)
+        </div>
             `;
         }
         
