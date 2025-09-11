@@ -347,7 +347,13 @@
             margin-bottom: 10px;
             font-family: var(--body-font);
         }
-        
+
+        .question-hint {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-style: italic;
+}
         .options label {
             display: block;
             margin-bottom: 8px;
@@ -736,6 +742,11 @@
                 testHTML += `<div class="question">
                     <div class="question-text">${index + 1}. ${q.question}</div>
                     <div class="options">`;
+               
+                // Добавляем уточнение для второго вопроса второго модуля
+        if (moduleId === 2 && q.id === 2) {
+            testHTML += `<div class="question-hint">Отметьте несколько вариантов ответа.</div>`;
+        }
                 
                 if (q.type === 'radio') {
                     q.options.forEach((option, optIndex) => {
