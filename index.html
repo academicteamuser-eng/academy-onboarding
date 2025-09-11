@@ -872,7 +872,9 @@
             isCorrect = userAnswer === q.correctAnswer;
         } else if (q.type === 'checkbox') {
             isCorrect = arraysEqual(userAnswer.sort(), q.correctAnswers.sort());
-        }
+        } else if (q.type === 'text') {
+    isCorrect = true;
+}
         
         resultsHTML += `
             <div class="question" style="border-left: 4px solid ${isCorrect ? 'var(--success-color)' : '#e74c3c'}; padding-left: 15px;">
