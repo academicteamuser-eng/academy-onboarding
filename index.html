@@ -401,6 +401,22 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* Результаты теста */
+.correct-answer {
+    background-color: #d4edda !important;
+    border-left: 3px solid var(--success-color) !important;
+}
+
+.incorrect-answer {
+    background-color: #f8d7da !important;
+    border-left: 3px solid #e74c3c !important;
+}
+
+.user-choice {
+    font-weight: bold;
+}
+        
     </style>
 </head>
 <body>
@@ -832,43 +848,122 @@
                 return;
             }
             
-            completeTest(moduleId, score);
+             // Показываем результаты
+    showTestResults(moduleId, answers, score);
+        }
+        function showTestResults(moduleId, userAnswers, score) {
+    const testContent = document.getElementById('testContent');
+    const test = tests[moduleId];
+    
+    let resultsHTML = `
+        <h2>Результаты теста к модулю ${moduleId}</h2>
+        <div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: var(--border-radius);">
+            <strong>Ваш результат: ${score} из ${test.length}</strong>
+        </div>
+    `;
+    
+    test.forEach((q, index) => {
+        const userAnswer = userAnswers[q.id];
+        let isCorrect = false;
+        
+        if (q.type === 'radio') {
+            isCorrect = userAnswer === q.correctAnswer;
+        } else if (q.type === 'checkbox') {
+            isCorrect = arraysEqual(userAnswer.sort(), q.correctAnswers.sort());
         }
         
-        function completeTest(moduleId, score) {
-            // Обновляем прогресс модуля
-            moduleProgress[moduleId].completed = true;
-            moduleProgress[moduleId].score = score;
-            
-            // Сохраняем прогресс в localStorage
-            localStorage.setItem('moduleProgress', JSON.stringify(moduleProgress));
-            
-            // Обновляем статус модуля
-            updateModuleStatus(moduleId);
-            
-            // Закрываем модальное окно теста
-            closeModal('testModal');
-            
-            // Проверяем, завершены ли все модули
-            const allCompleted = Object.values(moduleProgress).every(module => module.completed);
-            
-            if (allCompleted) {
-                // Обновляем время завершения для пользователя
-                supabase
-                    .from('users')
-                    .update({ end_time: new Date().toISOString() })
-                    .eq('id', userId)
-                    .then(({ error }) => {
-                        if (error) {
-                            console.error('Ошибка при обновлении времени завершения:', error);
-                        }
-                    });
+        resultsHTML += `
+            <div class="question" style="border-left: 4px solid ${isCorrect ? 'var(--success-color)' : '#e74c3c'}; padding-left: 15px;">
+                <div class="question-text">${index + 1}. ${q.question}</div>
+                <div class="options" style="margin-top: 10px;">
+        `;
+        
+        if (q.type === 'radio' || q.type === 'checkbox') {
+            q.options.forEach((option, optIndex) => {
+                const isUserChoice = q.type === 'radio' 
+                    ? userAnswer === optIndex 
+                    : userAnswer.includes(optIndex);
+                const isCorrectOption = q.type === 'radio' 
+                    ? optIndex === q.correctAnswer 
+                    : q.correctAnswers.includes(optIndex);
                 
-                setTimeout(() => {
-                    document.getElementById('successModal').style.display = 'flex';
-                }, 500);
-            }
+                let optionStyle = '';
+                if (isCorrectOption) {
+                    optionStyle = 'background-color: #d4edda; border-left: 3px solid var(--success-color);';
+                } else if (isUserChoice && !isCorrectOption) {
+                    optionStyle = 'background-color: #f8d7da; border-left: 3px solid #e74c3c;';
+                }
+                
+                resultsHTML += `
+                    <label style="display: block; margin-bottom: 8px; padding: 8px; border-radius: 4px; ${optionStyle}">
+                        <input type="${q.type}" ${isUserChoice ? 'checked' : ''} disabled style="margin-right: 10px;">
+                        ${option}
+                        ${isCorrectOption ? ' ✓' : ''}
+                    </label>
+                `;
+            });
+        } else if (q.type === 'text') {
+            resultsHTML += `
+                <div style="margin-bottom: 10px;">
+                    <strong>Ваш ответ:</strong>
+                    <div style="padding: 10px; background-color: #f8f9fa; border-radius: 4px; margin-top: 5px;">
+                        ${userAnswer || 'Ответ не предоставлен'}
+                    </div>
+                </div>
+                <div style="color: #777; font-size: 0.9rem;">
+                    Текстовые ответы проверяются вручную модератором.
+                </div>
+            `;
         }
+        
+        resultsHTML += `
+                </div>
+                <div style="margin-top: 10px; color: ${isCorrect ? 'var(--success-color)' : '#e74c3c'}; font-weight: 500;">
+                    ${isCorrect ? '✓ Верно' : '✗ Неверно'}
+                </div>
+            </div>
+        `;
+    });
+    
+    resultsHTML += `
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="btn" onclick="completeTest(${moduleId}, ${score})">Завершить</button>
+        </div>
+    `;
+    
+    testContent.innerHTML = resultsHTML;
+    
+    // Обновляем прогресс модуля
+    moduleProgress[moduleId].completed = true;
+    moduleProgress[moduleId].score = score;
+    localStorage.setItem('moduleProgress', JSON.stringify(moduleProgress));
+    updateModuleStatus(moduleId);
+}
+        function completeTest(moduleId, score) {
+    
+    // Закрываем модальное окно теста
+    closeModal('testModal');
+    
+    // Проверяем, завершены ли все модули
+    const allCompleted = Object.values(moduleProgress).every(module => module.completed);
+    
+    if (allCompleted) {
+        // Обновляем время завершения для пользователя
+        supabase
+            .from('users')
+            .update({ end_time: new Date().toISOString() })
+            .eq('id', userId)
+            .then(({ error }) => {
+                if (error) {
+                    console.error('Ошибка при обновлении времени завершения:', error);
+                }
+            });
+        
+        setTimeout(() => {
+            document.getElementById('successModal').style.display = 'flex';
+        }, 500);
+    }
+}
         
         function updateModuleStatus(moduleId) {
             const statusElement = document.getElementById(`status${moduleId}`);
