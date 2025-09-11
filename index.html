@@ -447,7 +447,7 @@
             </div>
             <div class="video-container">
                 <video controls poster="video-poster3.jpg" id="video3">
-                    <source src="video3_subjects.mp4" type="video/mp4">
+                    <source src="https://academicteamuser-eng.github.io/academy-onboarding/20250606_0122_Melting Metal Streams_simple_compose_01jx130xt1fbxtjx8d6ftgxacx.mp4" type="video/mp4">
                     Ваш браузер не поддерживает видео тег.
                 </video>
             </div>
@@ -863,7 +863,7 @@
             const statusElement = document.getElementById(`status${moduleId}`);
             
             if (moduleProgress[moduleId].completed) {
-                statusElement.textContent = `Завершен (${moduleProgress[moduleId].score}/${tests[moduleId].length})`;
+                statusElement.textContent = `Результаты (${moduleProgress[moduleId].score}/${tests[moduleId].length})`;
                 statusElement.className = 'module-status status-completed';
             } else if (moduleProgress[moduleId].started) {
                 statusElement.textContent = 'В процессе';
