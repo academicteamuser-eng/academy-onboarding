@@ -167,9 +167,6 @@
             padding: 30px;
           margin: 40px 0;
             transition: var(--transition);
-            /*border-left: 4px solid var(--secondary-color);*/
-           /* border-left: 4px solid linear-gradient(135deg, var(--gradient-start_border) 50%, var(--gradient-end_border) 50%);*/
-           /* border-image: linear-gradient(135deg, var(--gradient-start_border) 100%, var(--gradient-end_border) 0%)1;*/
             border-left: 4px solid transparent;
     background-image: 
         linear-gradient(white, white),
@@ -309,7 +306,13 @@
             transition: var(--transition);
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             font-family: var(--body-font);
-            border-left: 3px solid var(--secondary-color);
+            /*border-left: 3px solid var(--secondary-color);*/
+            border-left: 4px solid transparent;
+    background-image: 
+        linear-gradient(white, white),
+        linear-gradient(135deg, var(--gradient-start_border) 0%, var(--gradient-end_border) 50%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
         }
         
         .resources-list a:hover {
