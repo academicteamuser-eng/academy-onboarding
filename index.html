@@ -439,8 +439,16 @@
         }
         
         @media (max-width: 768px) {
-            .header-title {
+           .header-title span:first-child {
         font-size: 1.2rem;
+    }
+    
+    .header-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .header-title::before {
+        height: 60%;
     }
     
     .header-logo,
