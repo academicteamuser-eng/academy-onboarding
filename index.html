@@ -91,9 +91,34 @@
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
-    font-size: 32px;
+    text-align: center;
+    padding-left: 20px; /* Отступ для линии */
+    position: relative;
+   /* font-size: 32px;
     color: white;
-    font-family: var(--heading-font);
+    font-family: var(--heading-font);*/
+}
+
+        .header-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%; /* Высота линии */
+    width: 2px;
+    background-color: white;
+}
+
+.header-title span {
+    display: block;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    font-weight: normal;
+    font-family: var(--body-font); /* Обычный шрифт текста */
+    margin-top: 5px;
 }
 
 .header-image {
@@ -461,8 +486,10 @@
     <header>
     <div class="container header-content">
         <img src="https://academicteamuser-eng.github.io/academy-onboarding/img/logo" alt="Логотип" class="header-logo">
-        <h1 class="header-title">Добро пожаловать</h1>
-        <p>от Академической команды</p>
+        <h1 class="header-title">
+            <span>Добро пожаловать</span>
+    <span class="header-subtitle">от Академической команды</span>
+        </h1>
         <img src="https://academicteamuser-eng.github.io/academy-onboarding/img/img2" alt="картинка с экспертом" class="header-image">
     </div>
 </header>
